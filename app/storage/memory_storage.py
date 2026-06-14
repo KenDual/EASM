@@ -1,9 +1,13 @@
+"""Thread-safe in-memory storage protected by threading.Lock (Bai 4)."""
+
 import threading
 from typing import Optional
 from app.models.asset import Asset
 
 
 class MemoryStorage:
+    # In-memory dict store with mutex-guarded access
+
     def __init__(self):
         self._store: dict[str, Asset] = {}
         self._lock = threading.Lock()

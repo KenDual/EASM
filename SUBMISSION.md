@@ -4,10 +4,10 @@
 
 ## Các bài đã hoàn thành
 
-- [ ] Bài 1: Statistics APIs
-- [ ] Bài 2: Batch Create
-- [ ] Bài 3: Batch Delete
-- [ ] Bài 4: Concurrent-safe Create
-- [ ] Bài 5: In-memory Health Check
-- [ ] Bài 6: Pagination (Bonus)
-- [ ] Bài 7: Search (Bonus)
+- [x] Bài 1: Statistics APIs
+- [x] Bài 2: Batch Create
+- [x] Bài 3: Batch Delete
+- [x] Bài 4: Concurrent-safe Create
+- [x] Bài 5: In-memory Health Check
+- [x] Bài 6: Pagination (Bonus)
+- [x] Bài 7: Search (Bonus)

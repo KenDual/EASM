@@ -4,6 +4,8 @@ from app.storage.memory_storage import MemoryStorage
 
 
 class AssetService:
+    # High-level operations on assets.
+
     def __init__(self, storage: MemoryStorage):
         self._storage = storage
 
@@ -15,6 +17,7 @@ class AssetService:
         return self._storage.create(asset), None
 
     def batch_create(self, reqs: list[CreateAssetRequest]) -> tuple[Optional[list[Asset]], Optional[str]]:
+        # Validate all first; insert none if any are invalid (all-or-nothing).
         if len(reqs) > 100:
             return None, "maximum 100 assets per request"
         for req in reqs:
@@ -47,6 +50,7 @@ class AssetService:
         return self._storage.batch_delete(ids)
 
     def get_stats(self) -> dict:
+        # Aggregate asset counts by type and status.
         assets = self._storage.list_all()
         by_type: dict[str, int] = {}
         by_status: dict[str, int] = {}
@@ -56,6 +60,7 @@ class AssetService:
         return {"total": len(assets), "by_type": by_type, "by_status": by_status}
 
     def count_by_filter(self, type_filter: Optional[str], status_filter: Optional[str]) -> dict:
+        # Count assets matching optional type/status filters.
         assets = self._storage.list_all()
         filtered = [
             a for a in assets
@@ -70,11 +75,13 @@ class AssetService:
         return {"count": len(filtered), "filters": filters}
 
     def search(self, query: str, limit: int = 100) -> list[Asset]:
+        # Case-insensitive partial name search.# 
         q = query.lower()
         results = [a for a in self._storage.list_all() if q in a.name.lower()]
         return results[:limit]
 
     def list_paginated(self, page: int, limit: int, type_filter: Optional[str], status_filter: Optional[str]) -> dict:
+        # Paginated list with optional type/status filtering.
         assets = self._storage.list_all()
         filtered = [
             a for a in assets

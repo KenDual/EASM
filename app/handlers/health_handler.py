@@ -4,8 +4,8 @@ from app.services.asset_service import AssetService
 
 router = APIRouter(tags=["health"])
 
+# get start time
 _start_time = datetime.now(timezone.utc)
-
 
 def make_router(service: AssetService) -> APIRouter:
     @router.get("/health")
