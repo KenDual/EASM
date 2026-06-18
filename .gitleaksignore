@@ -1,0 +1,2 @@
+# Files/patterns to ignore in gitleaks secret scanning
+# Add fingerprints of known false positives here
