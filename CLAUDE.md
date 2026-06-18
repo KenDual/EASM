@@ -6,6 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Mini EASM** — External Attack Surface Management system. Manages domain/IP assets and runs security scans (DNS, WHOIS, subdomain enumeration, port scan, SSL, etc.) against them.
 
+## Current Status
+
+| Phase | Status |
+|-------|--------|
+| Phase 0 — Scaffold | ✅ Done |
+| Phase 1 — Bài 1 (DB + Asset CRUD) | ✅ Done |
+| Phase 1 — Bài 2 (9 Scanners) | ✅ Done |
+| Phase 1 — Bài 3 (Unit Tests, 55 tests, 88% cov) | ✅ Done |
+| Phase 1 — Bài 4 (Frontend browser test) | ⏳ Code done, needs browser verify |
+| Phase 2 — Docker + CI | ⬜ Next |
+
 ## Common Commands
 
 All commands run from `backend/`:
@@ -17,8 +28,14 @@ npm test               # Run Jest test suite
 npm run test:coverage  # Run tests with coverage report (gate: ≥70% lines)
 npm run lint           # ESLint with security plugin
 
-# Run a single test file
-node --experimental-vm-modules node_modules/.bin/jest tests/unit/models/asset.test.js
+# Run a single test file (Windows — use jest.js directly, not .bin/jest)
+node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit/models/asset.test.js
+```
+
+**Kill server holding port 8080 on Windows:**
+```powershell
+$proc = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($proc) { Stop-Process -Id $proc.OwningProcess -Force }
 ```
 
 ## Architecture
@@ -43,7 +60,10 @@ routes/index.js  →  handlers/*.handler.js  →  services/*.service.js  →  re
 3. Uses `setImmediate(() => runScanAsync(job))` — scan runs in background
 4. Updates job status: `pending → running → completed/failed/partial`
 
-Never await the scan in the handler.
+Status logic in `scan.service.js`:
+- Single scanner throws → `failed`
+- `scan_type='all'` with some failures → `partial`
+- All succeed → `completed`
 
 ### Scanner Interface
 
@@ -59,19 +79,23 @@ export default {
 
 `src/scanners/index.js` exports `SCANNERS` (map of type→scanner) and `ALL_TYPES`. The `'all'` scan type is not a scanner — it's handled in `scan.service.js` via `Promise.allSettled` over applicable scanners.
 
+DNS scanner accepts an injected `resolver` option for testing: `run(asset, { resolver = dnsPromises } = {})`.
+
 ### Database
 
 - SQLite file at `DB_PATH` (default `./mini_asm.db`), managed by `better-sqlite3` (synchronous API)
 - Migrations: numbered SQL files in `src/db/migrations/`, run by `src/db/migrate.js` which tracks applied files in `_migrations` table
 - `scan_results.data` column stores JSON strings — always `JSON.parse` on read, `JSON.stringify` on write
+- Server startup: `waitForDb()` (5 retries × 2s) then `runMigrations()` if `AUTO_MIGRATE=true`
 
 ### Error Handling
 
 All errors flow through `middleware/error.js`. Throw typed errors from `utils/errors.js`:
 
 ```js
-throw new ErrNotFound('asset not found')
-throw new ErrInvalid('invalid scan type')
+throw new ErrNotFound('asset not found')   // → 404
+throw new ErrInvalid('invalid scan type')  // → 400
+throw new ErrConflict('already exists')    // → 409
 ```
 
 Standard error response shape:
@@ -81,7 +105,36 @@ Standard error response shape:
 
 ### Port Scan Safety
 
-`src/utils/safety.js` exports `isPrivateIP(ip)`. `port.scanner.js` **must** call this and throw `ErrInvalid` if the target is not a private IP — scans on public IPs are rejected.
+`src/utils/safety.js` exports `isPrivateIP(ip)`. `port.scanner.js` **must** call this and throw `ErrInvalid` if the target is not a private IP — scans on public IPs are rejected with `status: 'failed'`.
+
+## Testing
+
+### ESM Mocking Pattern
+
+This project uses ESM (`"type": "module"`). Jest mocking in ESM requires:
+
+```js
+// 1. Import jest explicitly
+import { jest, describe, test, expect, beforeAll, beforeEach } from '@jest/globals';
+
+// 2. Use unstable_mockModule (NOT jest.mock) — must be called before any import of the mocked module
+jest.unstable_mockModule('../../../src/repositories/asset.repository.js', () => ({
+  assetRepository: { findAll: jest.fn(), findById: jest.fn() },
+}));
+
+// 3. Dynamic imports AFTER the mock declarations
+let assetService, assetRepository;
+beforeAll(async () => {
+  ({ assetService } = await import('../../../src/services/asset.service.js'));
+  ({ assetRepository } = await import('../../../src/repositories/asset.repository.js'));
+});
+```
+
+For tests that don't need mocking, `describe/test/expect` are injected as globals automatically — no import needed.
+
+### Test Helper
+
+`tests/helpers/memdb.js` provides `newTestDb()` — returns an in-memory `better-sqlite3` instance with all migrations applied. Use for integration tests that need a real DB.
 
 ## Key Constraints
 
@@ -91,6 +144,7 @@ Standard error response shape:
 - **Frontend** — vanilla HTML + Tailwind CDN + ES modules; no build step, no npm in `frontend/`
 - `crypto.randomUUID()` for UUIDs (Node 20 built-in)
 - `fetch` for HTTP calls in scanners (Node 20 built-in)
+- On **Windows**, `node_modules/.bin/jest` is a bash script — always use `node_modules/jest/bin/jest.js` directly
 
 ## Environment Variables
 

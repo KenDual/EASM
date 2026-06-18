@@ -401,19 +401,19 @@ runScanAsync(job):
 
 > Tuân thủ yêu cầu: **chạy local ổn định trước**, rồi mới đến ops.
 
-### Phase 0 — Setup (½ ngày)
-- [ ] Tạo repo, branch `homework-final` từ branch homework lần trước
-- [ ] Init `backend/` (`npm init`, install deps), `frontend/`, scaffolding theo cấu trúc mục 3
-- [ ] Setup ESLint + Prettier + `.editorconfig`
-- [ ] `.env.example`, `.gitignore`
-- [ ] README skeleton
+### Phase 0 — Setup (½ ngày) ✅ DONE
+- [x] Tạo repo, branch `homework-final` từ branch homework lần trước
+- [x] Init `backend/` (`npm init`, install deps), `frontend/`, scaffolding theo cấu trúc mục 3
+- [x] Setup ESLint + Prettier + `.editorconfig`
+- [x] `.env.example`, `.gitignore`
+- [x] README skeleton
 
 ### Phase 1 — Core Local (Bài 1 → 4) — **MUST PASS LOCAL TRƯỚC**
-- [ ] **Bài 1:** SQLite + migrations + asset CRUD repository → service → handler
-- [ ] **Bài 2:** 9 scanner + scan job/result endpoints
-- [ ] **Bài 3:** Unit tests (model + scanner bắt buộc; handler + service bonus)
-- [ ] **Bài 4:** Frontend vanilla + CORS — verify full flow trên browser
-- [ ] **Gate:** chạy `npm test` xanh, demo flow tay trên browser → mới qua Phase 2
+- [x] **Bài 1:** SQLite + migrations + asset CRUD repository → service → handler
+- [x] **Bài 2:** 9 scanner + scan job/result endpoints
+- [x] **Bài 3:** Unit tests (model + scanner bắt buộc; handler + service bonus) — 55 tests, 88% coverage
+- [ ] **Bài 4:** Frontend vanilla + CORS — verify full flow trên browser (code done, cần browser test)
+- [x] **Gate (partial):** `npm test` xanh ✅ — browser demo còn lại
 
 ### Phase 2 — Containerize & CI (Bài 5, 6)
 - [ ] **Bài 6:** Dockerfile backend + frontend, docker-compose.yml local
