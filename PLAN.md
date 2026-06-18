@@ -415,9 +415,9 @@ runScanAsync(job):
 - [ ] **Bài 4:** Frontend vanilla + CORS — verify full flow trên browser (code done, cần browser test)
 - [x] **Gate (partial):** `npm test` xanh ✅ — browser demo còn lại
 
-### Phase 2 — Containerize & CI (Bài 5, 6)
-- [ ] **Bài 6:** Dockerfile backend + frontend, docker-compose.yml local
-- [ ] **Bài 5:** GitHub Actions CI: lint → test → security (eslint-security, npm audit, Trivy, Gitleaks, TruffleHog)
+### Phase 2 — Containerize & CI (Bài 5, 6) ✅ DONE
+- [x] **Bài 6:** Dockerfile backend + frontend, docker-compose.yml local (+ healthcheck)
+- [x] **Bài 5:** GitHub Actions CI: lint → test → security (eslint-security, npm audit, Trivy, Gitleaks CLI, TruffleHog) — tất cả xanh
 - [ ] Branch protection rule: PR phải pass CI mới merge
 
 ### Phase 3 — Feature nâng cao (Bài 7)
