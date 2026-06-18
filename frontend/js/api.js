@@ -27,4 +27,5 @@ export const api = {
   getJob: (id) => request('GET', `/scan-jobs/${id}`),
   getJobResults: (id) => request('GET', `/scan-jobs/${id}/results`),
   getAssetScans: (assetId) => request('GET', `/assets/${assetId}/scans`),
+  getAssetResults: (assetId) => request('GET', `/assets/${assetId}/results`),
 };

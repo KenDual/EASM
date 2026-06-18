@@ -412,7 +412,7 @@ runScanAsync(job):
 - [x] **Bài 1:** SQLite + migrations + asset CRUD repository → service → handler
 - [x] **Bài 2:** 9 scanner + scan job/result endpoints
 - [x] **Bài 3:** Unit tests (model + scanner bắt buộc; handler + service bonus) — 55 tests, 88% coverage
-- [ ] **Bài 4:** Frontend vanilla + CORS — verify full flow trên browser (code done, cần browser test)
+- [x] **Bài 4:** Frontend vanilla + CORS — verify full flow trên browser (code done, cần browser test)
 - [x] **Gate (partial):** `npm test` xanh ✅ — browser demo còn lại
 
 ### Phase 2 — Containerize & CI (Bài 5, 6) ✅ DONE
