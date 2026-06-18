@@ -1,0 +1,15 @@
+# CI workflow — implemented in Bài 5
+name: CI
+
+on:
+  push:
+    branches: [main, homework-final]
+  pull_request:
+    branches: [main]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "CI placeholder — implement in Bài 5"

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini EASM</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <h1 class="text-xl font-bold text-blue-400">Mini EASM</h1>
+      <nav class="flex gap-4">
+        <a href="#/assets" class="nav-link px-3 py-1 rounded text-sm hover:bg-gray-800 transition-colors">Assets</a>
+        <a href="#/scans" class="nav-link px-3 py-1 rounded text-sm hover:bg-gray-800 transition-colors">Scans</a>
+        <a href="#/dashboard" class="nav-link px-3 py-1 rounded text-sm hover:bg-gray-800 transition-colors">Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="app" class="max-w-6xl mx-auto px-6 py-8">
+    <div id="view-loading" class="text-gray-500 text-center py-20">Loading...</div>
+    <div id="view-assets" class="hidden"></div>
+    <div id="view-scans" class="hidden"></div>
+    <div id="view-dashboard" class="hidden"></div>
+  </main>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

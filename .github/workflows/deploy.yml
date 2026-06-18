@@ -1,0 +1,12 @@
+# Deploy workflow — implemented in Bài 10
+name: Deploy
+
+on:
+  push:
+    branches: [deploy]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploy placeholder — implement in Bài 10"
