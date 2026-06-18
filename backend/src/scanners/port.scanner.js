@@ -1,5 +1,4 @@
 import net from 'net';
-import { promises as dnsPromises } from 'dns';
 import { isPrivateIP } from '../utils/safety.js';
 import { ErrInvalid } from '../utils/errors.js';
 

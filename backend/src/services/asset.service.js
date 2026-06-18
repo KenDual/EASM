@@ -1,5 +1,5 @@
 import { assetRepository } from '../repositories/asset.repository.js';
-import { ErrNotFound, ErrConflict } from '../utils/errors.js';
+import { ErrNotFound } from '../utils/errors.js';
 
 export const assetService = {
   list(query) {

@@ -15,7 +15,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Phase 1 — Bài 2 (9 Scanners) | ✅ Done |
 | Phase 1 — Bài 3 (Unit Tests, 55 tests, 88% cov) | ✅ Done |
 | Phase 1 — Bài 4 (Frontend browser test) | ⏳ Code done, needs browser verify |
-| Phase 2 — Docker + CI | ⬜ Next |
+| Phase 2 — Bài 6 (Docker + Compose) | ✅ Done |
+| Phase 2 — Bài 5 (GitHub Actions CI) | ✅ Done |
 
 ## Common Commands
 
