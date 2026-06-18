@@ -1,11 +1,11 @@
 import express from 'express';
-import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import pinoHttp from 'pino-http';
 import logger from './config/logger.js';
 import { corsMiddleware } from './middleware/cors.js';
 import { errorHandler } from './middleware/error.js';
+import { getDb } from './db/connection.js';
 import router from './routes/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,13 +17,20 @@ export function createApp() {
   app.use(express.json());
   app.use(corsMiddleware);
 
-  // Serve frontend static files
-  app.use(express.static(path.join(__dirname, '../../frontend')));
+  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+  app.get('/ready', (_req, res) => {
+    try {
+      getDb().prepare('SELECT 1').get();
+      res.json({ status: 'ok' });
+    } catch {
+      res.status(503).json({ status: 'unavailable' });
+    }
+  });
 
   app.use('/', router);
 
-  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
-  app.get('/ready', (_req, res) => res.json({ status: 'ok' }));
+  // Serve frontend static files — after API routes
+  app.use(express.static(path.join(__dirname, '../../frontend')));
 
   app.use(errorHandler);
 

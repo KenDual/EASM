@@ -68,6 +68,7 @@ async function runScanAsync(job, asset) {
     );
 
     let hasFailure = false;
+    let lastError = '';
     for (const result of results) {
       if (result.status === 'fulfilled') {
         scanJobRepository.createResult({
@@ -79,12 +80,21 @@ async function runScanAsync(job, asset) {
         });
       } else {
         hasFailure = true;
-        logger.warn({ jobId: job.id, error: result.reason?.message }, 'Scanner failed');
+        lastError = result.reason?.message ?? 'Unknown error';
+        logger.warn({ jobId: job.id, error: lastError }, 'Scanner failed');
       }
     }
 
-    const finalStatus = job.scan_type === 'all' && hasFailure ? 'partial' : 'completed';
-    scanJobRepository.updateStatus(job.id, { status: finalStatus, ended_at: now() });
+    let finalStatus;
+    if (!hasFailure) finalStatus = 'completed';
+    else if (job.scan_type === 'all') finalStatus = 'partial';
+    else finalStatus = 'failed';
+
+    scanJobRepository.updateStatus(job.id, {
+      status: finalStatus,
+      ended_at: now(),
+      error: hasFailure ? lastError : null,
+    });
   } catch (err) {
     logger.error({ jobId: job.id, err }, 'Scan failed');
     scanJobRepository.updateStatus(job.id, {

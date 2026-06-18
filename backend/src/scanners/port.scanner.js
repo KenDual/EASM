@@ -12,8 +12,7 @@ export default {
   appliesTo: ['ip'],
 
   async run(asset) {
-    // Resolve to IP first if needed, then check private
-    let ip = asset.name;
+    const ip = asset.name;
     if (!isPrivateIP(ip)) {
       throw new ErrInvalid('Port scan is only allowed on private IP addresses');
     }
