@@ -43,3 +43,8 @@ docker compose up -d
 | `ssl` | TLS certificate details | domain |
 | `tech` | Technology detection via HTTP headers | domain |
 | `all` | Chạy tất cả scan phù hợp | domain/ip |
+
+
+```
+https://kendualserver.tail368e13.ts.net/
+```
