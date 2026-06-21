@@ -22,7 +22,9 @@ export default {
       resolve('MX'),
       resolve('NS'),
       resolve('TXT'),
-      resolve('CNAME').catch(() => { results['CNAME'] = []; }),
+      resolve('CNAME').catch(() => {
+        results['CNAME'] = [];
+      }),
     ]);
 
     return [results];

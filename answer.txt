@@ -1,0 +1,92 @@
+BỘ 1:
+1.1:
+- route: routing giữa các endpoint ví dụ như /api, /login
+- handler: xử lý logic
+- service: là nơi định nghĩa các dịch vụ chạy, ví dụ như scan, query,...
+- repository: là nơi backend giao tiếp trực tiếp với DB
+Mỗi lớp chỉ được phép làm đúng nhiệm vụ đó và cấm xen vào nhiệm vụ của bất kỳ layer nào khác
+Là một quyết định bảo trì và bảo mật là vì chia layer rõ ràng sẽ giúp dễ debug, chỗ nào lỗi sẽ biết tìm ở đâu, làm rõ layer và băm nhỏ các dịch vụ ra sẽ giúp dễ bảo mật hơn cho context của 1 dịch vụ nhỏ, thay vì phải bảo mật 1 script dài 2000 dòng.
+
+1.2:
+- status code 202 là status thông báo rằng server đã nhận thành công và tiếp nhận request của user, nhưng có thể process thật chưa chạy xong, đối với các dịch vụ lớn, chỉ cần nhìn thấy 202 tức là dịch vụ ON thành công là được, còn login nghiệp thành có đúng hay không là do 1 service khác.
+- pattern đánh đổi ở đây là đôi khi trả về 202 cứ tưởng là success 100%, nhưng thật ra là chưa chắc, phải đợi status 200 là mới đúng thật sự successful
+
+1.3:
+- Vì thay gì parse hẵn SQL query vào DB, attacker có thể manipulate bằng SQL injection vì input của họ được parse như một lệnh SQL thông thường, việc sử dụng thông qua db.prepare sẽ giúp sanitize + normlize input, từ đây mọi query input không hợp lệ sẽ được thư viện phát hiện, từ đó không parse SQL query, điều này tránh được SQL injection
+- không phải điều kiện bắt buộc là vì mặc dù là thư viện cung cấp dịch vụ bảo mật, các thư viện đó vẫn có khả năng gặp CVE nguy hiểm, từ đó sẽ bị scan hàng loạt còn nguy hiểm hơn, nên cân nhắc thư viện nào nên sử dụng, thư viện nào không nên.
+
+1.4:
+- journal_mode = WAL và foreign_keys = ON sẽ giúp cho SQLite liên đới khóa ngoại khi DELETE ON CASCADE, vì SQLite không tự liên kết khóa ngoại mặc định mà ta cần phải set thủ công
+- nếu 2 mode trên không bật thì DELETE ON CASCADE sẽ không hoạt động đúng cách, vì khi xóa nó sẽ để lại orphan records có foreign key tới nhưng lại không được trỏ mặc định
+
+1.5:
+startScan trong api.js -> route router.post('/assets/:id/scan', scanHandler.startScan); -> hàm scanHandler trong scan.handler.js -> scanService trong scan.service.js -> scanJobRepository trong scan_job.repository.js -> DB query theo SQL command trong repository
+
+1.6:
+- Khi user gọi lệnh scan, user expect 1 thông tin pending trả về, đây là cấu hình chuẩn cho async, trả về job trước thì trên UI sẽ hiện status: pending, user biết service đang scanning, tối ưu được trải nghiệm người dùng.
+- Nếu đổi ngược lại thì scan process sẽ chạy xong thì mới trả về kết quả + status, điều này khiến cho status pending và running trở nên vô nghĩa và có thể user sẽ nghĩ rằng web đã đơ, service đã lỗi, nhưng thật ra chỉ là đang scan mà thôi.
+
+1.7:
+Ở trên sẽ có 1 hàm hasFailed == False mặc định
+- failed khi việc scan không complete được (không phải scan không thành công)
+- complete khi không có job nào bị fail (tất cả scan complete)
+- partial khi type là 'all'
+
+1.8:
+- tôi nghĩ là kỹ thuật hàm trả về hàm với giá trị cuối cùng
+- Đầu tiên sẽ lấy req, res và middleware next, sau đó dùng scanService để lấy kết quả, nếu khác kết quả thì trả về json null tức là [], nếu có kết quả thì trả về result { "scan": "domain" , tất cả được đặt trong try catch để catch lỗi sau cùng
+
+1.9:
+- validate phải nằm trước để kiểm tra đầu vào rồi với đưa cho handler để xử lý logic, vì có thể input là các thông tin không phải normal string và mà attack command,...
+
+1.10:
+- zod là một thư viện lọc và làm sạch input, bắt buộc phải qua zod rồi mới được truyền body vào handler, đây là lý do chính vì sao chúng ta sử dụng middleware zod, gán body vào thì attacker có thể chèn SQL injection, command injection, đôi khi là payload js nằm trong 1 file gì đó được upload lên sẽ được thực thi nếu không đi qua zod lọc.
+
+1.11:
+- SQLite không tự link foreign key mà phải cần được setup bằng pragma, mỗi truy vấn đều phải mở kết nối thì pragma foreign key ON vẫn còn tác dụng
+
+1.12:
+- tác dụng là chạy script migration mỗi khi không tìm thấy db, sql chạy lỗi giữa chừng sẽ không sao, nó sẽ kiểm tra nếu !db thì sẽ db = new Database(env.DB_PATH); luôn, và khởi tạo lại nên sẽ không phát sinh ra lỗi
+- đặt tên 001, 002 là để khi chạy system sẽ khởi tạo theo thứ tự tên 001 --> 002 từ đây sẽ đúng pipeline và tránh lỗi xung đột
+
+1.13:
+- Để scan mock/fake, không gọi thư viện node js scan thật
+
+1.14:
+- API cần được gọi trước để nó chạy kết quả, sau đó mới gọi frontend rồi từ đó trả kết quả về frontend, đây là pipeline cơ bản của system design, nếu gọi frontend trước thì giao diện sẽ hiện lên mà không có thông tin gì cả, một lát nữa API mới trả về sẽ khiến user experience không constantly và đôi khi hiển thị lỗi nữa, xung đột. Thú tự đăng ký có ý nghĩa là vì nếu không đặt middleware chuẩn sẽ khiến cho hệ thống dễ bị đơ, timeout, lỗi, xung đột, phải chuẩn pipeline nhé
+
+1.15:
+- Điểm yếu là nó phải lặp qua rồi gọi getAssetScans(), vậy nếu có 100 job thì sẽ gọi getAssetScans() 100 lần, đây là big O problem (tôi không phải dev đâu mà vẫn biết hahahha)
+
+1.16:
+- câu này tôi chưa biết, bạn hãy dạy tôi về các status code và tư duy của nó trong lĩnh vực cybersecurity
+
+1.17:
+- type: 'ssl' sẽ được truyền bằng string cứng, qua đến ssl.scanner.js, trong đây có appliesTo: ['domain'] để duyệt chỉ scan SSL đối với domain rồi chi tiết hàm bên dưới sẽ thực hiện scan
+- 'all' sẽ được xử lý ở scan.service.js, nó lấy ALL_TYPES tức là tất cả dns, whois,..., rồi filter chỉ giữ lại scanner nào appliesTo khớp với asset.type
+
+1.18:
+- 1 asset domain không thể chạy port vì để gợi port.scanner.js có cơ chế kiểm tra type là appliesTo: ['ip'], chỉ type IP mới được scan port, thật ra nếu gọi cũng được nhưng sẽ lỗi, vì dns scan không tồn tại port như IP destination, nó chỉ là mapping mechanism
+- trả về 400 INVALID REQUEST
+
+
+--- BỘ 2 ---
+2.1:
+- botnet, dos, ddos. Thêm rate limit sử dụng, nhưng tốt nhất vẫn là thêm cả authetication/authorization + rate limit
+
+2.2:
+- khi chỉ dùng cho nội bộ, không public ra ngoài thì chấp nhận được.
+- sau này thêm API public và vẫn để là '*' thì sẽ dẫn đến bị service abuse để lấy thông tin người dùng, giả sử như có 1 user login và có cookie session đăng nhập, attacker có thể lấy cookie đó thông qua việc gọi request đến API của mình
+- cần giới hạn scope lại, ví dụ như thành origin để chỉ có trang gốc của mình mới truy cập được vào resource của chính mình
+
+2.3:
+- trivy: công cụ scan CVEs, code misconfiguration, expose embedded secret. Nó quét OS, lib code, docker/k8s misconfiguration
+- Gitleaks: chuyên để tìm mật khẩu, API key, private key bị up lên git repo, đặc biệt nó mạnh để scan commit history
+- truffhog: tập trung vào quét lộ bí mật diện rộng và real-time
+- có cả gitleaks và truffhog là vì mỗi tool có mechanism riêng, gitleaks dùng regex để tìm và đo độ ngẫu nhiên để tính entropy, Truffhog cũng tương tự nhưng có thêm 1 bước tự gửi req đến provider như GG, AWS để kiểm tra key có hoạt động không
+
+2.4:
+- tôi không biết, bạn dạy tôi câu này
+
+2.5:
+-

@@ -12,3 +12,4 @@ npm-debug.log*
 certbot/conf/
 certbot/www/
 data/
+CLAUDE.md

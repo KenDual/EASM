@@ -31,19 +31,18 @@ docker compose up -d
 
 ## Scan Types
 
-| Type | Mô tả | Áp dụng |
-|------|-------|---------|
-| `dns` | DNS records (A, MX, NS, TXT, CNAME) | domain |
-| `whois` | WHOIS registration info | domain |
-| `subdomain` | Subdomain enumeration via crt.sh | domain |
-| `cert_trans` | Certificate transparency logs | domain |
-| `asn` | ASN / geolocation lookup | ip |
-| `ip` | Reverse DNS + geolocation | ip |
-| `port` | TCP port scan (private IPs only) | ip |
-| `ssl` | TLS certificate details | domain |
-| `tech` | Technology detection via HTTP headers | domain |
-| `all` | Chạy tất cả scan phù hợp | domain/ip |
-
+| Type         | Mô tả                                 | Áp dụng   |
+| ------------ | -------------------------------------- | --------- |
+| `dns`        | DNS records (A, MX, NS, TXT, CNAME)   | domain    |
+| `whois`      | WHOIS registration info               | domain    |
+| `subdomain`  | Subdomain enumeration via crt.sh      | domain    |
+| `cert_trans` | Certificate transparency logs         | domain    |
+| `asn`        | ASN / geolocation lookup              | ip        |
+| `ip`         | Reverse DNS + geolocation             | ip        |
+| `port`       | TCP port scan (private IPs only)      | ip        |
+| `ssl`        | TLS certificate details               | domain    |
+| `tech`       | Technology detection via HTTP headers | domain    |
+| `all`        | Chạy tất cả scan phù hợp              | domain/ip |
 
 ```
 https://kendualserver.tail368e13.ts.net/

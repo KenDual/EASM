@@ -1,29 +1,29 @@
 name: Deploy
 
 on:
-  push:
-    branches: [deploy]
+    push:
+        branches: [deploy]
 
 jobs:
-  deploy:
-    name: Deploy to VM
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/homework-2
-            git pull origin deploy
-            docker compose -f docker-compose.prod.yml pull --quiet
-            docker compose -f docker-compose.prod.yml up -d --build
-            docker system prune -f
+    deploy:
+        name: Deploy to VM
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Deploy via SSH
+              uses: appleboy/ssh-action@v1
+              with:
+                  host: ${{ secrets.SERVER_HOST }}
+                  username: ${{ secrets.SERVER_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  script: |
+                      cd ~/homework-2
+                      git pull origin deploy
+                      docker compose -f docker-compose.prod.yml pull --quiet
+                      docker compose -f docker-compose.prod.yml up -d --build
+                      docker system prune -f
 
-      - name: Health check
-        run: |
-          sleep 20
-          curl -fsS https://${{ secrets.SERVER_HOST }}/api/health
+            - name: Health check
+              run: |
+                  sleep 20
+                  curl -fsS https://${{ secrets.SERVER_HOST }}/api/health
