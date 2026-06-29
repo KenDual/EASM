@@ -12,4 +12,6 @@ npm-debug.log*
 certbot/conf/
 certbot/www/
 data/
+**/__pycache__/
+*.pyc
 CLAUDE.md
